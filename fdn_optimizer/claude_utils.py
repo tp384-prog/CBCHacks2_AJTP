@@ -25,7 +25,8 @@ Use exactly this structure:
 {
   "donations": [
     {
-      "name": "donor name",
+      "name": "donor organization name e.g. Wegmans",
+      "item": "type of food e.g. produce, bread, canned goods",
       "quantity": 80,
       "location": [42.4440, -76.5019],
       "expiry": "2026-04-25T15:00:00"
@@ -34,6 +35,8 @@ Use exactly this structure:
 }
 
 Rules:
+- name is the donor organization
+- item is the type of food being donated
 - quantity is in lbs as an integer
 - location is [lat, lng] as floats
 - expiry is ISO 8601 datetime string, always date 2026-04-25

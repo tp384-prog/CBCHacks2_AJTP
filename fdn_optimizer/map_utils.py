@@ -1,6 +1,30 @@
 import folium
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DRIVER_COLORS = ["blue", "purple", "orange", "red", "green", "darkblue"]
+
+
+def get_road_route(origin, destination):
+    """Returns a list of [lat, lng] points following actual roads via ORS"""
+    try:
+        response = requests.get(
+            "https://api.openrouteservice.org/v2/directions/driving-car",
+            headers={"Authorization": os.getenv("ORS_API_KEY")},
+            params={
+                "start": f"{origin[1]},{origin[0]}",        # ORS expects lng,lat
+                "end": f"{destination[1]},{destination[0]}"
+            }
+        )
+        data = response.json()
+        coords = data["features"][0]["geometry"]["coordinates"]
+        return [[c[1], c[0]] for c in coords]  # flip to [lat, lng] for Folium
+    except Exception as e:
+        print(f"ORS route error: {e} — falling back to straight line")
+        return [origin, destination]  # fallback to straight line if API fails
 
 
 def build_map(assignments, donations, pantries):
@@ -8,7 +32,7 @@ def build_map(assignments, donations, pantries):
     Builds a Folium map centered on Ithaca.
     - Red markers for donation pickup locations
     - Green markers for pantry dropoff locations
-    - Colored polylines per driver showing route order
+    - Colored polylines per driver following real road routes
     """
     m = folium.Map(location=[42.4440, -76.5019], zoom_start=13)
 
@@ -17,19 +41,20 @@ def build_map(assignments, donations, pantries):
         folium.Marker(
             location=donation["location"],
             popup=folium.Popup(
-                f"<b>{donation['name']}</b><br>"
+                f"<b>{donation['item']}</b><br>"
                 f"Quantity: {donation['quantity']} lbs<br>"
                 f"Expires: {donation['expiry']}",
                 max_width=200
             ),
             icon=folium.Icon(color="red", icon="info-sign"),
-            tooltip=f"Pickup: {donation['name']}"
+            tooltip=f"Pickup: {donation['item']}"
         ).add_to(m)
 
     # Add pantry markers (green)
     for pantry in pantries:
+        pantry_loc = [pantry["lat"], pantry["lng"]]
         folium.Marker(
-            location=pantry["location"],
+            location=pantry_loc,
             popup=folium.Popup(
                 f"<b>{pantry['name']}</b><br>"
                 f"Open: {pantry['open']} — {pantry['close']}",
@@ -39,7 +64,7 @@ def build_map(assignments, donations, pantries):
             tooltip=f"Pantry: {pantry['name']}"
         ).add_to(m)
 
-    # Group assignments by driver name — driver is a dict so use driver["name"]
+    # Group assignments by driver name
     driver_routes = {}
     for a in assignments:
         driver_name = a["driver"]["name"]
@@ -47,25 +72,20 @@ def build_map(assignments, donations, pantries):
             driver_routes[driver_name] = []
         driver_routes[driver_name].append(a)
 
-    # Draw a polyline per driver
+    # Draw a road-following polyline per driver
     for idx, (driver_name, route) in enumerate(driver_routes.items()):
         color = DRIVER_COLORS[idx % len(DRIVER_COLORS)]
-        route_coords = []
 
         for stop in route:
-            # donation and pantry are full dicts from the optimizer
             donation_loc = stop["donation"]["location"]
-            pantry_loc = stop["pantry"]["location"]
-
-            route_coords.append(donation_loc)
-            route_coords.append(pantry_loc)
+            pantry_loc   = [stop["pantry"]["lat"], stop["pantry"]["lng"]]
 
             # Numbered stop marker at the pantry
             folium.Marker(
                 location=pantry_loc,
                 popup=folium.Popup(
                     f"<b>{driver_name}</b><br>"
-                    f"Delivering: {stop['donation']['name']}<br>"
+                    f"Delivering: {stop['donation']['item']}<br>"
                     f"Quantity: {stop['donation']['quantity']} lbs<br>"
                     f"Travel time: {stop['travel_time_min']} min",
                     max_width=200
@@ -80,11 +100,12 @@ def build_map(assignments, donations, pantries):
                 )
             ).add_to(m)
 
-        if route_coords:
+            # Get real road route from ORS
+            road_coords = get_road_route(donation_loc, pantry_loc)
             folium.PolyLine(
-                locations=route_coords,
+                locations=road_coords,
                 color=color,
-                weight=3,
+                weight=4,
                 opacity=0.8,
                 tooltip=f"{driver_name} route"
             ).add_to(m)
@@ -109,21 +130,20 @@ if __name__ == "__main__":
     from data.load_data import load_pantries, load_donations, load_drivers
 
     donations = load_donations()
-    pantries = load_pantries("Saturday")
-    drivers = load_drivers()
+    pantries  = load_pantries("Saturday")
+    drivers   = load_drivers()
 
-    # Mirror exact structure that optimizer.py returns
     mock_assignments = [
         {
-            "driver": drivers[0],
-            "donation": donations[0],
-            "pantry": pantries[0],
+            "driver":          drivers[0],
+            "donation":        donations[0],
+            "pantry":          pantries[0],
             "travel_time_min": 2.0
         },
         {
-            "driver": drivers[1],
-            "donation": donations[1],
-            "pantry": pantries[0],
+            "driver":          drivers[1],
+            "donation":        donations[1],
+            "pantry":          pantries[0],
             "travel_time_min": 4.0
         },
     ]

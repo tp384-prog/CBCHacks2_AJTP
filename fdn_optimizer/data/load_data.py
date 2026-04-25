@@ -31,7 +31,6 @@ def load_partners():
 
 
 def load_donations():
-    # Mock donations — coordinator inputs these live via Claude in the real app
     return [
         {"id": 1, "name": "Wegmans", "item": "produce", "quantity": 80,
          "urgency": "high", "expiry": "2026-04-25T15:00:00",

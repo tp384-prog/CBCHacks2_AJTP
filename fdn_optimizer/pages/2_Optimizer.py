@@ -11,15 +11,49 @@ from dashboard import render_dashboard
 
 load_dotenv()
 
-# ── Page config ────────────────────────────────────────────────
 st.set_page_config(
     page_title="FDN Route Optimizer",
     page_icon="🥦",
     layout="wide"
 )
 
-st.title("FDN Route Optimizer")
-st.caption("Friendship Donations Network — AI-powered logistics coordinator")
+# Sidebar header + sticky top bar
+st.markdown("""
+<style>
+    /* Sticky top header */
+    header[data-testid="stHeader"] {
+        content: "FDN Route Optimizer";
+        background: white;
+        border-bottom: 0.5px solid rgba(128,128,128,0.2);
+    }
+
+    /* Sidebar title above the nav links */
+    [data-testid="stSidebarNav"]::before {
+        content: "FDN Route Optimizer";
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d7a3a;
+        padding: 1.2rem 1rem 0.8rem;
+        border-bottom: 0.5px solid rgba(128,128,128,0.2);
+        margin-bottom: 0.5rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.set_page_config(
+    page_title="Optimizer — FDN",
+    page_icon="🗺️",
+    layout="wide"
+)
+
+st.title("Route optimizer")
+st.caption("VRPTW-based route optimization with Claude-powered natural language interface")
+
+if st.button("← Back to home"):
+    st.switch_page("Home.py")
+
+st.divider()
 
 # ── Sidebar inputs ─────────────────────────────────────────────
 with st.sidebar:
@@ -48,7 +82,7 @@ with st.sidebar:
     )
 
     optimize_btn = st.button(
-        "Optimize Routes",
+        "Optimize routes",
         type="primary",
         use_container_width=True
     )
@@ -59,20 +93,14 @@ with st.sidebar:
 active_pantries = [p for p in all_pantries if p["name"] in active_pantry_names]
 drivers = load_drivers()
 
-# ── Initialize session state ───────────────────────────────────
-if "opt_result" not in st.session_state:
-    st.session_state.opt_result = None
-if "naive_result" not in st.session_state:
-    st.session_state.naive_result = None
-if "briefing" not in st.session_state:
-    st.session_state.briefing = None
-if "donations" not in st.session_state:
-    st.session_state.donations = None
+# ── Session state ──────────────────────────────────────────────
+for key in ["opt_result", "naive_result", "briefing", "donations"]:
+    if key not in st.session_state:
+        st.session_state[key] = None
 
-# ── Main logic ─────────────────────────────────────────────────
+# ── Run on button click ────────────────────────────────────────
 if optimize_btn and raw_input:
 
-    # Step 1 — Parse with Claude
     with st.spinner("Parsing donation input with Claude..."):
         try:
             parsed = parse_input(raw_input)
@@ -86,7 +114,6 @@ if optimize_btn and raw_input:
 
     st.success(f"Parsed {len(donations)} donation(s). Running optimizer...")
 
-    # Step 2 — Run ORIE optimizer
     with st.spinner("Running EDF greedy heuristic..."):
         try:
             st.session_state.opt_result = run_optimizer(
@@ -96,13 +123,11 @@ if optimize_btn and raw_input:
             st.error(f"Optimizer error: {e}")
             st.stop()
 
-    # Step 3 — Run naive baseline
     with st.spinner("Running naive baseline for comparison..."):
         st.session_state.naive_result = run_naive(
             donations, active_pantries, drivers
         )
 
-    # Step 4 — Generate Claude briefing
     with st.spinner("Generating driver briefing with Claude..."):
         try:
             st.session_state.briefing = narrate_routes(
@@ -112,65 +137,53 @@ if optimize_btn and raw_input:
         except Exception as e:
             st.session_state.briefing = "Could not generate briefing."
 
-# ── Display results (persists across rerenders) ────────────────
-if st.session_state.opt_result is not None:
-    opt_result = st.session_state.opt_result
-    naive_result = st.session_state.naive_result
-    briefing = st.session_state.briefing
-    donations = st.session_state.donations
+elif optimize_btn and not raw_input:
+    st.warning("Please describe today's donations in the sidebar first.")
 
-    st.divider()
+# ── Display results ────────────────────────────────────────────
+if st.session_state.opt_result is not None:
+    opt_result  = st.session_state.opt_result
+    naive_result = st.session_state.naive_result
+    briefing    = st.session_state.briefing
+    donations   = st.session_state.donations
+
     st.subheader("Optimization results")
 
-    col1, col2, col3, col4 = st.columns(4)
-
-    opt_mins = round(opt_result["total_travel_seconds"] / 60, 1)
+    c1, c2, c3, c4 = st.columns(4)
+    opt_mins   = round(opt_result["total_travel_seconds"] / 60, 1)
     naive_mins = round(naive_result["total_travel_seconds"] / 60, 1)
-    savings = round(naive_mins - opt_mins, 1)
-    opt_reached = len(opt_result["assignments"])
-    naive_reached = len(naive_result["assignments"])
+    savings    = round(naive_mins - opt_mins, 1)
 
-    col1.metric("Optimized travel time", f"{opt_mins} min")
-    col2.metric("Naive travel time", f"{naive_mins} min",
-                delta=f"-{savings} min saved", delta_color="inverse")
-    col3.metric("Pantries reached", f"{opt_reached}",
-                delta=f"+{opt_reached - naive_reached} vs naive")
-    col4.metric("Unroutable donations", len(opt_result["unroutable"]))
+    c1.metric("Optimized travel time", f"{opt_mins} min")
+    c2.metric("Naive travel time", f"{naive_mins} min",
+              delta=f"-{savings} min saved", delta_color="inverse")
+    c3.metric("Pantries reached", len(opt_result["assignments"]))
+    c4.metric("Unroutable donations", len(opt_result["unroutable"]))
 
     st.divider()
 
     map_col, brief_col = st.columns([3, 2])
-
     with map_col:
         st.subheader("Route map")
-        route_map = build_map(
-            opt_result["assignments"],
-            donations,
-            active_pantries
-        )
+        route_map = build_map(opt_result["assignments"], donations, active_pantries)
         st_folium(route_map, width=700, height=450)
-
     with brief_col:
         st.subheader("Driver briefing")
         st.markdown(briefing)
 
     st.divider()
-
     render_dashboard(drivers, active_pantries, opt_result, donations)
-    st.divider()
 
+    st.divider()
     st.subheader("Full assignment table")
     if opt_result["assignments"]:
-        table_data = []
-        for a in opt_result["assignments"]:
-            table_data.append({
-                "Driver":         a["driver"]["name"],
-                "Pickup from":    a["donation"]["name"],
-                "Deliver to":     a["pantry"]["name"],
-                "Quantity (lbs)": a["donation"]["quantity"],
-                "Travel (min)":   a["travel_time_min"],
-            })
-        st.dataframe(table_data, use_container_width=True)
+        st.dataframe([{
+            "Driver":         a["driver"]["name"],
+            "Pickup from":    a["donation"]["name"],
+            "Deliver to":     a["pantry"]["name"],
+            "Quantity (lbs)": a["donation"]["quantity"],
+            "Travel (min)":   a["travel_time_min"],
+        } for a in opt_result["assignments"]], use_container_width=True)
 
     if opt_result["unroutable"]:
         st.warning(
@@ -180,19 +193,10 @@ if st.session_state.opt_result is not None:
 
     with st.expander("View ORIE formulation"):
         st.markdown("**Problem class:** Vehicle Routing Problem with Time Windows (VRPTW)")
-        st.markdown("**Decision variables:**")
         st.latex(r"x_{ijk} = 1 \text{ if driver } k \text{ travels from stop } i \text{ to stop } j")
-        st.latex(r"t_{ik} = \text{arrival time of driver } k \text{ at stop } i")
-        st.markdown("**Objective function:**")
         st.latex(r"\min \sum_k \sum_i \sum_j d_{ij} \cdot x_{ijk} + \lambda \sum_p u_p \cdot (1 - y_p)")
-        st.markdown("**Constraints:**")
         st.markdown("""
-- **Time windows:** arrival must be within pantry open hours
-- **Volunteer availability:** arrival within driver's available window  
-- **Capacity:** total load per driver ≤ vehicle capacity (lbs)
-- **Perishability:** delivery must occur before item expiry
-- **Solution method:** Greedy insertion heuristic with Earliest Deadline First (EDF) priority ordering
-        """)
+**Constraints:** time windows · volunteer availability · vehicle capacity · perishability
 
-elif optimize_btn and not raw_input:
-    st.warning("Please describe today's donations in the sidebar before optimizing.")
+**Solution method:** Greedy insertion heuristic with Earliest Deadline First (EDF) priority ordering
+        """)
