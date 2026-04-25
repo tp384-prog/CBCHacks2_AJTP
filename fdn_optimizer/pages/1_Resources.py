@@ -2,6 +2,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from datetime import datetime
 from data.load_data import load_pantries, load_drivers, load_partners
+from datetime import datetime
 
 load_dotenv()
 
@@ -55,7 +56,10 @@ day = st.selectbox(
     ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
     index=5
 )
-
+sim_time = st.time_input(
+    "Simulated time",
+    value=datetime.strptime("10:00", "%H:%M").time()
+)
 drivers = load_drivers()
 pantries = load_pantries(day)
 partners = load_partners()
@@ -98,21 +102,31 @@ now = datetime.now()
 for pantry in pantries:
     col_name, col_hours, col_address, col_status = st.columns([3, 2, 3, 1])
 
-    close_dt = datetime.strptime(f"2026-04-25 {pantry['close']}", "%Y-%m-%d %H:%M")
+    if sim_time is not None:
+        now = datetime.strptime(f"2026-04-25 {sim_time.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
+    else:
+        now = datetime.now()
+
+    close_dt  = datetime.strptime(f"2026-04-25 {pantry['close']}", "%Y-%m-%d %H:%M")
+    open_dt   = datetime.strptime(f"2026-04-25 {pantry['open']}", "%Y-%m-%d %H:%M")
     mins_left = (close_dt - now).total_seconds() / 60
 
     col_name.markdown(f"**{pantry['name']}**")
     col_hours.write(f"{pantry['open']} – {pantry['close']}")
     col_address.write(pantry.get("address", "Ithaca, NY"))
 
-    if mins_left < 0:
-        col_status.error("Closed")
-    elif mins_left < 30:
-        col_status.error("Closing")
-    elif mins_left < 60:
-        col_status.warning("Soon")
-    else:
-        col_status.success("Open")
+    mins_until_open = (open_dt - now).total_seconds() / 60
+
+if mins_left < 0:
+    col_status.error("Closed")
+elif mins_until_open > 0:
+    col_status.warning(f"Opens {pantry['open']}")
+elif mins_left < 30:
+    col_status.error("Closing soon")
+elif mins_left < 60:
+    col_status.warning("Closing soon")
+else:
+    col_status.success("Open")
 
 st.divider()
 
