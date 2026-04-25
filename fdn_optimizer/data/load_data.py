@@ -34,7 +34,7 @@ def load_donations():
     return [
         {"id": 1, "name": "Wegmans", "item": "produce", "quantity": 80,
          "urgency": "high", "expiry": "2026-04-25T15:00:00",
-         "location": [42.4440, -76.5019]},
+         "location": [42.4502, -76.4926]},
         {"id": 2, "name": "Purity Bakery", "item": "bread", "quantity": 40,
          "urgency": "medium", "expiry": "2026-04-25T17:00:00",
          "location": [42.4450, -76.5100]},

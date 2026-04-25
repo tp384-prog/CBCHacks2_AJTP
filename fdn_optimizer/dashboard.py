@@ -10,8 +10,11 @@ def get_load_color(pct):
     return "green"
 
 
-def pantry_status(pantry):
-    now = datetime.now()
+def pantry_status(pantry, sim_time=None):
+    if sim_time is not None:
+        now = datetime.strptime(f"2026-04-25 {sim_time.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
+    else:
+        now = datetime.now()
     close_str = pantry["close"]
     close_dt = datetime.strptime(f"2026-04-25 {close_str}", "%Y-%m-%d %H:%M")
     mins_until_close = (close_dt - now).total_seconds() / 60
@@ -24,7 +27,7 @@ def pantry_status(pantry):
     return "Open", "green"
 
 
-def render_dashboard(drivers, active_pantries, opt_result, donations):
+def render_dashboard(drivers, active_pantries, opt_result, donations, sim_time=None):
     st.subheader("Resource dashboard")
 
     # ── Driver cards ───────────────────────────────────────────
@@ -60,7 +63,7 @@ def render_dashboard(drivers, active_pantries, opt_result, donations):
                 """,
                 unsafe_allow_html=True
             )
-            st.progress(load_pct)
+            st.progress(min(1.0, load_pct))
 
     st.divider()
 
@@ -68,7 +71,7 @@ def render_dashboard(drivers, active_pantries, opt_result, donations):
     st.markdown("**Active pantries today**")
 
     for pantry in active_pantries:
-        status_label, status_color = pantry_status(pantry)
+        status_label, status_color = pantry_status(pantry, sim_time=sim_time)
         assigned_here = [
             a for a in opt_result["assignments"]
             if a["pantry"]["name"] == pantry["name"]
@@ -95,9 +98,8 @@ def render_dashboard(drivers, active_pantries, opt_result, donations):
         for u in opt_result["unroutable"]:
             reasons = []
             total_assigned = sum(
-                a["donation"]["quantity"] for a in opt_result["assignments"]
-                if a["driver"]["name"] == d["name"]
-                for d in drivers
+                a["donation"]["quantity"]
+                for a in opt_result["assignments"]
             )
             all_full = all(
                 (d["current_load"] + u["quantity"]) > d["capacity"]
@@ -132,19 +134,19 @@ def render_dashboard(drivers, active_pantries, opt_result, donations):
     total_donations = len(donations)
     routed = len(opt_result["assignments"])
     unrouted = len(opt_result["unroutable"])
-    route_pct = routed / total_donations if total_donations > 0 else 0
+    route_pct = min(1.0, routed / total_donations) if total_donations > 0 else 0
 
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("Capacity utilization")
-        st.progress(total_assigned / total_capacity if total_capacity > 0 else 0)
+        st.progress(min(1.0, total_assigned / total_capacity) if total_capacity > 0 else 0)
         st.caption(
             f"{total_assigned} lbs assigned of {total_capacity} lbs total "
-            f"({round((total_assigned/total_capacity)*100)}%)"
+            f"({min(100, round((total_assigned/total_capacity)*100))}%)"
         )
     with c2:
         st.markdown("Donation routing rate")
-        st.progress(route_pct)
+        st.progress(min(1.0, route_pct))
         st.caption(
             f"{routed} of {total_donations} donations routed "
             f"({round(route_pct*100)}%)"

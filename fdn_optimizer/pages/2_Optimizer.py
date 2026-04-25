@@ -8,6 +8,8 @@ from engine.optimizer import run_optimizer
 from naive_optimizer import run_naive
 from map_utils import build_map
 from dashboard import render_dashboard
+from datetime import datetime, time
+
 
 load_dotenv()
 
@@ -65,6 +67,11 @@ with st.sidebar:
         index=5
     )
 
+    sim_time = st.time_input(
+        "Current time (for planning)",
+        value=datetime.strptime("12:00", "%H:%M").time()
+    )
+
     raw_input = st.text_area(
         "Describe today's donations",
         height=160,
@@ -94,13 +101,13 @@ active_pantries = [p for p in all_pantries if p["name"] in active_pantry_names]
 drivers = load_drivers()
 
 # ── Session state ──────────────────────────────────────────────
-for key in ["opt_result", "naive_result", "briefing", "donations"]:
+for key in ["opt_result", "naive_result", "briefing", "donations", "sim_time"]:
     if key not in st.session_state:
         st.session_state[key] = None
 
 # ── Run on button click ────────────────────────────────────────
 if optimize_btn and raw_input:
-
+    st.session_state.sim_time = sim_time
     with st.spinner("Parsing donation input with Claude..."):
         try:
             parsed = parse_input(raw_input)
@@ -117,7 +124,7 @@ if optimize_btn and raw_input:
     with st.spinner("Running EDF greedy heuristic..."):
         try:
             st.session_state.opt_result = run_optimizer(
-                donations, active_pantries, drivers
+                donations, active_pantries, drivers, sim_time=sim_time
             )
         except Exception as e:
             st.error(f"Optimizer error: {e}")
@@ -146,6 +153,7 @@ if st.session_state.opt_result is not None:
     naive_result = st.session_state.naive_result
     briefing    = st.session_state.briefing
     donations   = st.session_state.donations
+    sim_time     = st.session_state.sim_time
 
     st.subheader("Optimization results")
 
@@ -172,7 +180,7 @@ if st.session_state.opt_result is not None:
         st.markdown(briefing)
 
     st.divider()
-    render_dashboard(drivers, active_pantries, opt_result, donations)
+    render_dashboard(drivers, active_pantries, opt_result, donations, sim_time=sim_time)
 
     st.divider()
     st.subheader("Full assignment table")
