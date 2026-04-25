@@ -105,7 +105,7 @@ conda activate fdn-optimizer
 
 **3. Install dependencies**
 ```bash
-pip install streamlit anthropic requests folium streamlit-folium python-dotenv pandas openpyxl
+pip install streamlit anthropic requests folium streamlit-folium python-dotenv pandas
 ```
 
 **4. Add your API keys**
@@ -116,7 +116,7 @@ ANTHROPIC_API_KEY=your_key_here
 ORS_API_KEY=your_key_here
 ```
 
-Get a free Claude API key at console.anthropic.com and a free OpenRouteService key at openrouteservice.org.
+Get a Claude API key at console.anthropic.com and a free OpenRouteService key at openrouteservice.org.
 
 **5. Run the app**
 ```bash
@@ -128,9 +128,8 @@ streamlit run Home.py
 ## How to use
 
 1. Open the app and navigate to **Route Optimizer** from the home page
-2. Select the day of the week to load active pantries
-3. Either type a plain-English description of today's donations, or download the template, fill it in, and upload it
-4. Select which pantries are active today
+2. Select the day of the week to load active pantries and the time of day you want to simulate
+3. Type a plain-English description of today's donations
 5. Click **Optimize Routes**
 6. View the route map, driver briefing, resource dashboard, and before/after metrics
 
