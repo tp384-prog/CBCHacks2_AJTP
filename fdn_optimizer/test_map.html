@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_2af5429f7745ebebc8c0715e48a1dd7f {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+    <div style="position:fixed;bottom:30px;left:30px;z-index:1000;
+                background:white;padding:10px 14px;border-radius:8px;
+                border:1px solid #ccc;font-size:13px;line-height:1.8">
+        <b>FDN Route Optimizer</b><br>
+        <span style="color:red">&#9679;</span> Donation pickup<br>
+        <span style="color:green">&#9679;</span> Pantry dropoff<br>
+        <span style="color:blue">&#9644;</span> Driver routes
+    </div>
+    
+    
+            <div class="folium-map" id="map_2af5429f7745ebebc8c0715e48a1dd7f" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_2af5429f7745ebebc8c0715e48a1dd7f = L.map(
+                "map_2af5429f7745ebebc8c0715e48a1dd7f",
+                {
+                    center: [42.444, -76.5019],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_85f0a4d4aeee09d16e356c582643d048 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_85f0a4d4aeee09d16e356c582643d048.addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var marker_692775b67301efa01a74b6c8d88f9e43 = L.marker(
+                [42.444, -76.5019],
+                {
+}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var icon_bfac9f9c7e65163471fd3a9bfa4c0636 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9984ec1b868ef721b950cdcba98b500e = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_9c4ddf0514e962b07182e94e898e4616 = $(`<div id="html_9c4ddf0514e962b07182e94e898e4616" style="width: 100.0%; height: 100.0%;"><b>Wegmans</b><br>Quantity: 80 lbs<br>Expires: 2026-04-25T15:00:00</div>`)[0];
+                popup_9984ec1b868ef721b950cdcba98b500e.setContent(html_9c4ddf0514e962b07182e94e898e4616);
+            
+        
+
+        marker_692775b67301efa01a74b6c8d88f9e43.bindPopup(popup_9984ec1b868ef721b950cdcba98b500e)
+        ;
+
+        
+    
+    
+            marker_692775b67301efa01a74b6c8d88f9e43.bindTooltip(
+                `<div>
+                     Pickup: Wegmans
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_692775b67301efa01a74b6c8d88f9e43.setIcon(icon_bfac9f9c7e65163471fd3a9bfa4c0636);
+            
+    
+            var marker_392914ca00fa491f6fa291b369e11523 = L.marker(
+                [42.445, -76.51],
+                {
+}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var icon_c6610a092a6b4324f5e2ad3f52014c91 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_720b865a8d3c9a2fb276629fd7731770 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_5777ac0e76b3b92c877d0210c763bc3d = $(`<div id="html_5777ac0e76b3b92c877d0210c763bc3d" style="width: 100.0%; height: 100.0%;"><b>Purity Bakery</b><br>Quantity: 40 lbs<br>Expires: 2026-04-25T17:00:00</div>`)[0];
+                popup_720b865a8d3c9a2fb276629fd7731770.setContent(html_5777ac0e76b3b92c877d0210c763bc3d);
+            
+        
+
+        marker_392914ca00fa491f6fa291b369e11523.bindPopup(popup_720b865a8d3c9a2fb276629fd7731770)
+        ;
+
+        
+    
+    
+            marker_392914ca00fa491f6fa291b369e11523.bindTooltip(
+                `<div>
+                     Pickup: Purity Bakery
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_392914ca00fa491f6fa291b369e11523.setIcon(icon_c6610a092a6b4324f5e2ad3f52014c91);
+            
+    
+            var marker_3c4ae11adfbf62673e971bc11e115c47 = L.marker(
+                [42.448, -76.484],
+                {
+}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var icon_3f0ebfe3a3816435104dbd374076477b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_51b27e0f373922ed593b0842d857be4e = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_c1c0bb65d51660217a11af284029f2ff = $(`<div id="html_c1c0bb65d51660217a11af284029f2ff" style="width: 100.0%; height: 100.0%;"><b>Cornell Dining</b><br>Quantity: 30 lbs<br>Expires: 2026-04-25T20:00:00</div>`)[0];
+                popup_51b27e0f373922ed593b0842d857be4e.setContent(html_c1c0bb65d51660217a11af284029f2ff);
+            
+        
+
+        marker_3c4ae11adfbf62673e971bc11e115c47.bindPopup(popup_51b27e0f373922ed593b0842d857be4e)
+        ;
+
+        
+    
+    
+            marker_3c4ae11adfbf62673e971bc11e115c47.bindTooltip(
+                `<div>
+                     Pickup: Cornell Dining
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_3c4ae11adfbf62673e971bc11e115c47.setIcon(icon_3f0ebfe3a3816435104dbd374076477b);
+            
+    
+            var marker_2a5e9a2a29dc111ca46a3339ddc48387 = L.marker(
+                [42.4352, -76.4989],
+                {
+}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var icon_b3136f9782af693d5c1c71e8cfbe7136 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "home",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_58fb1c82f7bc042448958a5082b491d5 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_0e7dfc677689a92424b4014561426761 = $(`<div id="html_0e7dfc677689a92424b4014561426761" style="width: 100.0%; height: 100.0%;"><b>Southside Community Center</b><br>Open: 12:00 — 14:00</div>`)[0];
+                popup_58fb1c82f7bc042448958a5082b491d5.setContent(html_0e7dfc677689a92424b4014561426761);
+            
+        
+
+        marker_2a5e9a2a29dc111ca46a3339ddc48387.bindPopup(popup_58fb1c82f7bc042448958a5082b491d5)
+        ;
+
+        
+    
+    
+            marker_2a5e9a2a29dc111ca46a3339ddc48387.bindTooltip(
+                `<div>
+                     Pantry: Southside Community Center
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_2a5e9a2a29dc111ca46a3339ddc48387.setIcon(icon_b3136f9782af693d5c1c71e8cfbe7136);
+            
+    
+            var marker_d6693434051b2739768be838425081da = L.marker(
+                [42.4551, -76.6301],
+                {
+}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var icon_c7aa0ce69729f4a00911fffa283e0619 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "home",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_32c9ba04a96bf4156efba94cd7ff1b44 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_3e59871f847c52235555f4061f3de485 = $(`<div id="html_3e59871f847c52235555f4061f3de485" style="width: 100.0%; height: 100.0%;"><b>Enfield Food Pantry</b><br>Open: 10:00 — 12:00</div>`)[0];
+                popup_32c9ba04a96bf4156efba94cd7ff1b44.setContent(html_3e59871f847c52235555f4061f3de485);
+            
+        
+
+        marker_d6693434051b2739768be838425081da.bindPopup(popup_32c9ba04a96bf4156efba94cd7ff1b44)
+        ;
+
+        
+    
+    
+            marker_d6693434051b2739768be838425081da.bindTooltip(
+                `<div>
+                     Pantry: Enfield Food Pantry
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_d6693434051b2739768be838425081da.setIcon(icon_c7aa0ce69729f4a00911fffa283e0619);
+            
+    
+            var marker_f09b630d2e01760547eaa8097230dbdd = L.marker(
+                [42.4441, -76.5021],
+                {
+}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var icon_5eebcd5636d12aada8dc32edc3487bd3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "home",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5616937aa80d5af0f8f1ca33843bfdc4 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_f3d7a2ac5323fbf154610f4c2a613728 = $(`<div id="html_f3d7a2ac5323fbf154610f4c2a613728" style="width: 100.0%; height: 100.0%;"><b>Calvary Baptist Church</b><br>Open: 10:00 — 12:00</div>`)[0];
+                popup_5616937aa80d5af0f8f1ca33843bfdc4.setContent(html_f3d7a2ac5323fbf154610f4c2a613728);
+            
+        
+
+        marker_f09b630d2e01760547eaa8097230dbdd.bindPopup(popup_5616937aa80d5af0f8f1ca33843bfdc4)
+        ;
+
+        
+    
+    
+            marker_f09b630d2e01760547eaa8097230dbdd.bindTooltip(
+                `<div>
+                     Pantry: Calvary Baptist Church
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_f09b630d2e01760547eaa8097230dbdd.setIcon(icon_5eebcd5636d12aada8dc32edc3487bd3);
+            
+    
+            var marker_f605b136dc100e2f99461d030acda689 = L.marker(
+                [42.4352, -76.4989],
+                {
+}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var div_icon_9f213a23ca3865d428a50047e5fca7e0 = L.divIcon({
+  "html": "\u003cdiv style=\"background:blue;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;\"\u003e1\u003c/div\u003e",
+  "iconSize": [24, 24],
+  "iconAnchor": [12, 12],
+  "className": "empty",
+});
+        
+    
+        var popup_d7cd16e75364ec59e935e1855d16ba59 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_20f29b65bf4e867ee52e5312ec808b60 = $(`<div id="html_20f29b65bf4e867ee52e5312ec808b60" style="width: 100.0%; height: 100.0%;"><b>Sarah</b><br>Delivering: Wegmans<br>Quantity: 80 lbs<br>Travel time: 2.0 min</div>`)[0];
+                popup_d7cd16e75364ec59e935e1855d16ba59.setContent(html_20f29b65bf4e867ee52e5312ec808b60);
+            
+        
+
+        marker_f605b136dc100e2f99461d030acda689.bindPopup(popup_d7cd16e75364ec59e935e1855d16ba59)
+        ;
+
+        
+    
+    
+                marker_f605b136dc100e2f99461d030acda689.setIcon(div_icon_9f213a23ca3865d428a50047e5fca7e0);
+            
+    
+            var poly_line_a19dd3426e311cabf878a40cb3fe78ce = L.polyline(
+                [[42.444, -76.5019], [42.4352, -76.4989]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            poly_line_a19dd3426e311cabf878a40cb3fe78ce.bindTooltip(
+                `<div>
+                     Sarah route
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_f0a12d5d64442cd80d8352cea608e8e7 = L.marker(
+                [42.4352, -76.4989],
+                {
+}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            var div_icon_067a8f2207445259dd25b36daf09d656 = L.divIcon({
+  "html": "\u003cdiv style=\"background:purple;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;\"\u003e2\u003c/div\u003e",
+  "iconSize": [24, 24],
+  "iconAnchor": [12, 12],
+  "className": "empty",
+});
+        
+    
+        var popup_0ca2ebb23b00857c8c96aacaf37538bd = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_7facf9ffd8257393c61bb2677298eafc = $(`<div id="html_7facf9ffd8257393c61bb2677298eafc" style="width: 100.0%; height: 100.0%;"><b>Marcus</b><br>Delivering: Purity Bakery<br>Quantity: 40 lbs<br>Travel time: 4.0 min</div>`)[0];
+                popup_0ca2ebb23b00857c8c96aacaf37538bd.setContent(html_7facf9ffd8257393c61bb2677298eafc);
+            
+        
+
+        marker_f0a12d5d64442cd80d8352cea608e8e7.bindPopup(popup_0ca2ebb23b00857c8c96aacaf37538bd)
+        ;
+
+        
+    
+    
+                marker_f0a12d5d64442cd80d8352cea608e8e7.setIcon(div_icon_067a8f2207445259dd25b36daf09d656);
+            
+    
+            var poly_line_a7056031d0c81321cda8baba91064296 = L.polyline(
+                [[42.445, -76.51], [42.4352, -76.4989]],
+                {"bubblingMouseEvents": true, "color": "purple", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "purple", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_2af5429f7745ebebc8c0715e48a1dd7f);
+        
+    
+            poly_line_a7056031d0c81321cda8baba91064296.bindTooltip(
+                `<div>
+                     Marcus route
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
